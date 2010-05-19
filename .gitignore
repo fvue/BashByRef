@@ -1,0 +1,4 @@
+dbg.log
+test/log/*.log
+test/log/*.sum
+test/tmp/*

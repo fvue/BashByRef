@@ -1,0 +1,69 @@
+proc setup {} {
+    save_env
+}; # setup()
+
+
+proc teardown {} {
+    assert_bash_exec {unset -f f g}
+    assert_env_unmodified 
+}; # teardown()
+
+
+setup
+
+
+set test "runs without errors"
+assert_bash_exec {upvar a > /dev/null} $test
+
+
+sync_after_int
+
+
+set test "returns value local"
+set cmd {\
+    unset -v a;\
+    f() { local "$1" && upvar $1 b; };\
+    g() { local a; f a; echo $a; };\
+    g\
+}
+assert_bash_list b $cmd $test
+
+set test "global is unmodified"
+assert_bash_list {} {printf %s $a} $test
+
+
+sync_after_int
+
+
+set test "returns array local"
+set cmd {\
+    unset -v a;\
+    f() { local r=(e1 e2 "e3  e4" $'e5\ne6'); local "$1" && upvar $1 "${r[@]}"; };\
+    g() { local a; f a; echo "${a[@]}"; };\
+    g\
+}
+assert_bash_list {e1 e2 {e3  e4} "e5\ne6"} $cmd $test
+
+
+sync_after_int
+
+
+set test "multiple calls cause conflict"
+set cmd {\
+    unset -v a b;\
+    g() { local a=A b=B; local "$1" "$2" && upvar $1 $a && upvar $2 $b; };\
+    f() { local b a; g b a; printf $'%s\n' "$b $a"; };\
+    f\
+}
+send "$cmd\r"
+expect -ex "$cmd\r\n"
+expect {
+   -re "^A A\r\n" { xfail $test }
+   -re "^A B\r\n" { xpass $test }
+}
+
+
+sync_after_int
+
+
+teardown

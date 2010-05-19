@@ -1,0 +1,3 @@
+[submodule "bashcomp"]
+	path = bashcomp
+	url = git://git.debian.org/git/bash-completion/bash-completion.git

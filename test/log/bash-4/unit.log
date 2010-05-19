@@ -1,0 +1,66 @@
+Test Run By freddy on Sun May  9 21:56:19 2010
+Native configuration is i686-pc-linux-gnu
+
+		=== unit tests ===
+
+Schedule of variations:
+    unix
+
+Running target unix
+Using /usr/share/dejagnu/baseboards/unix.exp as board description file for target.
+Using /usr/share/dejagnu/config/unix.exp as generic interface file for target.
+Using ./config/default.exp as tool-and-target-specific interface file.
+/@echo $?
+0
+/@is_bash_version_minimal 3 2 41 || set +o history
+/@echo $?
+0
+/@source "../upvar.sh"
+/@echo $?
+0
+/@printf "%s" "$COMP_WORDBREAKS"
+ 	
+"'@><=;|&(:/@echo $?
+0
+/@printf "%s " "${BASH_VERSINFO[@]}"
+4 1 2 1 release i686-pc-linux-gnu /@echo $?
+0
+/@printf "%s" "$BASH_VERSION"
+4.1.2(1)-release/@echo $?
+0
+/@printf "%s" "$TESTDIR"
+/home/freddy/proj/bashByRef/git/test/@echo $?
+0
+/@Running ./unit/upvar.exp ...
+{ set; declare -F; shopt -p; } > "$TESTDIR/tmp/env.env1~"
+/@echo $?
+0
+/@upvar a > /dev/null
+/@echo $?
+0
+/@^C
+/@ unset -v a; f() { local "$1" && upvar $1 b; }; g() { local a; f a; echo $a; }; g 
+b
+/@PASS: returns value local
+printf %s $a
+/@PASS: global is unmodified
+^C
+/@ unset -v a; f() { local r=(e1 e2 "e3  e4" $'e5\ne6'); local "$1" && upvar $1 "${r[@]}"; }; g() { local a; f a; echo "${a[@]}"; }; g 
+e1 e2 e3  e4 e5
+e6
+/@PASS: returns array local
+^C
+/@unset -f f g
+/@echo $?
+0
+/@{ set; declare -F; shopt -p; } > "$TESTDIR/tmp/env.env2~"
+/@echo $?
+0
+/@diff_env "$TESTDIR/tmp/env.env1~" "$TESTDIR/tmp/env.env2~" "" LAST-ARG
+/@PASS: Environment should not be modified
+testcase ./unit/upvar.exp completed in 1 seconds
+
+		=== unit Summary ===
+
+# of expected passes		4
+runtest completed at Sun May  9 21:56:20 2010

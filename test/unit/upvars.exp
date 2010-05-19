@@ -1,0 +1,133 @@
+proc setup {} {
+    save_env
+}; # setup()
+
+
+proc teardown {} {
+    assert_bash_exec {unset -v b; unset -f f g}
+    assert_env_unmodified 
+}; # teardown()
+
+
+setup
+
+
+set test "runs without errors"
+assert_bash_exec {upvars --version > /dev/null} $test
+
+
+sync_after_int
+
+
+set test "returns value local"
+set cmd {\
+    unset -v a;\
+    f() { local "$1" && upvars -v $1 B; };\
+    g() { local a; f a; echo $a; };\
+    g\
+}
+assert_bash_list B $cmd $test
+
+set test "global is unmodified"
+assert_bash_list {} {printf %s $a} $test
+
+
+sync_after_int
+
+
+set test "returns array local"
+set cmd {\
+    unset -v a;\
+    f() { local r=(e1 e2 "e3  e4" $'e5\ne6'); local "$1" && upvars -a${#r[@]} $1 "${r[@]}"; };\
+    g() { local a; f a; echo "${a[@]}"; };\
+    g\
+}
+assert_bash_list {e1 e2 {e3  e4} "e5\ne6"} $cmd $test
+
+
+sync_after_int
+
+
+set test "no conflict"
+set cmd {\
+    unset -v a b;\
+    g() { local a=A b=B; local "$1" "$2" && upvars -v $1 $a -v $2 $b; };\
+    f() { local b a; g b a; printf $'%s\n' "$b $a"; };\
+    f\
+}
+assert_bash_list {A B} $cmd $test
+
+
+set test "return empty array"
+set cmd {\
+    unset -v a;\
+    g() { local a=(); local "$1" && upvars -a${#a[@]} a "${a[@]}"; };\
+    f() { local a; g a; declare -p a; };\
+    f\
+}
+assert_bash_list {{declare -a a='()'}} $cmd $test
+
+    
+set test "error when N in -aN not specified"
+set cmd {upvars -a b c; printf %s $?}
+send "$cmd\r"
+expect -ex "$cmd\r\n"
+expect {
+    -re "^bash: upvars: `-a': missing number specifier\r\n1/@" {pass $test}
+}
+
+
+sync_after_int
+
+
+set test "error when invalid N in -aN specified"
+set cmd {upvars -aA b c; printf %s $?}
+send "$cmd\r"
+expect -ex "$cmd\r\n"
+expect {
+    -re "^bash: upvars: `-aA': invalid number specifier\r\n1/@" {pass $test}
+}
+
+
+sync_after_int
+
+
+set test "error when -a1 has missing argument"
+set cmd {upvars -a1 b; printf %s $?}
+send "$cmd\r"
+expect -ex "$cmd\r\n"
+expect {
+    #-re "^bash: upvars: `-a1 b': missing argument\(s\)\r\n1/@$" {pass $test}
+    -re "^bash: upvars: `-a1 b': missing argument\\(s\\)\r\n1/@$" {pass $test}
+}
+
+
+sync_after_int
+
+
+set test "error when -a0 has wrong argument count"
+set cmd {upvars -a0; printf %s $?}
+send "$cmd\r"
+expect -ex "$cmd\r\n"
+expect {
+    -re "^bash: upvars: `-a0': missing argument\\(s\\)\r\n1/@" {pass $test}
+}
+
+
+sync_after_int
+
+
+set test "show usage when no arguments"
+set cmd {upvars; printf %s $?}
+send "$cmd\r"
+expect -ex "$cmd\r\n"
+expect {
+    -re "^upvars: usage: upvars \\\[-v varname value\\\] |\
+        \\\[-aN varname \\\[value ...\\\]\\\] ...\r\n1/@" {pass $test}
+}
+
+
+sync_after_int
+
+
+teardown

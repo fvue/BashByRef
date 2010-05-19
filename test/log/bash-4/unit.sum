@@ -1,0 +1,18 @@
+Test Run By freddy on Sun May  9 21:56:19 2010
+Native configuration is i686-pc-linux-gnu
+
+		=== unit tests ===
+
+Schedule of variations:
+    unix
+
+Running target unix
+Running ./unit/upvar.exp ...
+PASS: returns value local
+PASS: global is unmodified
+PASS: returns array local
+PASS: Environment should not be modified
+
+		=== unit Summary ===
+
+# of expected passes		4
