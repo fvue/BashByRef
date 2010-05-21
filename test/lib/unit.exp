@@ -10,6 +10,7 @@ proc unit_exit {} {
 proc unit_start {} {
     start_bash
     assert_bash_exec {source "../upvar.sh"}
+    assert_bash_exec {source "../upvars.sh"}
     init_tcl_bash_globals
 
     global OPT_BASH_XTRACE
