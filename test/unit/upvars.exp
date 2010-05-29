@@ -1,4 +1,5 @@
 proc setup {} {
+    assert_bash_exec {source lib/upvars.sh}
     save_env
 }; # setup()
 
@@ -125,6 +126,92 @@ expect {
     -re "^upvars: usage: upvars \\\[-v varname value\\\] |\
         \\\[-aN varname \\\[value ...\\\]\\\] ...\r\n1/@" {pass $test}
 }
+
+
+sync_after_int
+
+
+set test "return optional value"
+set cmd {\
+    unset -v a;\
+    g() { local a=foo; [[ "$1" ]] && local "$1" && upvars -v $1 "$a"; };\
+    f() { local a; g; declare -p a; };\
+    f\
+}
+assert_bash_list {{declare -- a=""}} $cmd $test
+
+
+sync_after_int
+
+
+set test "return none of two optional values"
+set cmd {\
+    f() { return_two_optional_values; };\
+    f\
+}
+assert_bash_list "" $cmd $test
+
+
+sync_after_int
+
+
+set test "return one of two optional values"
+set cmd {\
+    unset -v a;\
+    f() { local a; return_two_optional_values a; declare -p a; };\
+    f\
+}
+assert_bash_list {{declare -- a="foo"}} $cmd $test
+
+
+sync_after_int
+
+
+set test "return two of two optional values"
+set cmd {\
+    unset -v a b;\
+    f() { local a b; return_two_optional_values a b; declare -p a b; };\
+    f\
+}
+assert_bash_list {{declare -- a="foo"} {declare -- b="bar"}} $cmd $test
+
+
+sync_after_int
+
+
+set test "return none of two optional arrays"
+set cmd {\
+    f() { return_two_optional_arrays; };\
+    f\
+}
+assert_bash_list "" $cmd $test
+
+
+sync_after_int
+
+
+set test "return one of two optional arrays"
+set cmd {\
+    unset -v a;\
+    f() { local a; return_two_optional_arrays a; declare -p a; };\
+    f\
+}
+assert_bash_list {{declare -a a='([0]="foo" [1]="bar")'}} $cmd $test
+
+
+sync_after_int
+
+
+set test "return two of two optional arrays"
+set cmd {\
+    unset -v a b;\
+    f() { local a b; return_two_optional_arrays a b; declare -p a b; };\
+    f\
+}
+assert_bash_list {
+    {declare -a a='([0]="foo" [1]="bar")'}
+    {declare -a b='([0]="cee" [1]="dee")'}
+} $cmd $test
 
 
 sync_after_int

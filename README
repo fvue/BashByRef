@@ -1,0 +1,4 @@
+INSTALL
+
+git clone git@github.com:fvue/BashByRef.git
+git submodule update --init
