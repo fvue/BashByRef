@@ -1,0 +1,1 @@
+../../bashcomp/test/lib/library.sh
