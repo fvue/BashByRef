@@ -1,38 +1,65 @@
-INSTALL
+==Test suite==
 
-    # Get `BashByRef'
-git clone git@github.com:fvue/BashByRef.git
-    # Get submodule `bash-completion'
-cd BashByRef && git submodule update --init
+The test suite uses the [http://bash-completion.alioth.debian.org/
+bash-completion] test suite, which is written on top of the
+[http://www.gnu.org/software/dejagnu/ DejaGnu] testing framework.  DejaGnu is
+written in [http://expect.nist.gov Expect], which in turn uses
+[http://tcl.sourceforge.net Tcl] -- Tool command language.
 
+===Install===
 
-TEST SUITE
+====Git====
 
-To run the tests:
+ <nowiki>
+git clone git@github.com:fvue/BashByRef.git  # BashByRef
+cd BashByRef && git submodule update --init  # bash-completion</nowiki>
 
-    cd test
-    ./runUnit
+====Dependencies====
+
+=====Debian/Ubuntu=====
+
+On Debian/Ubuntu you can use `apt-get`:
+
+ sudo apt-get install dejagnu tcllib
+
+This should also install the necessary `expect` and `tcl` packages.
+
+=====Fedora/RHEL/CentOS=====
+
+On Fedora and RHEL/CentOS (with EPEL) you can use `yum`:
+
+ sudo yum install dejagnu tcllib
+
+This should also install the necessary `expect` and `tcl` packages.
+
+===Running the tests===
+
+The tests are run by calling <code>runUnit</code>:
+
+ <nowiki>
+cd test
+./runUnit</nowiki>
 
 Example output:
 
-    Test Run By me on Sun May 30 08:51:40 2010
-    Native configuration is i686-pc-linux-gnu
+ <nowiki>
+Test Run By me on Sun May 30 08:51:40 2010
+Native configuration is i686-pc-linux-gnu
 
-            === unit tests ===
+        === unit tests ===
 
-    Schedule of variations:
-        unix
+Schedule of variations:
+    unix
 
-    Running target unix
-    Using /usr/share/dejagnu/baseboards/unix.exp as board description file for target.
-    Using /usr/share/dejagnu/config/unix.exp as generic interface file for target.
-    Using ./config/default.exp as tool-and-target-specific interface file.
-    Running ./unit/upvar.exp ...
-    Running ./unit/upvars.exp ...
+Running target unix
+Using /usr/share/dejagnu/baseboards/unix.exp as board description file for target.
+Using /usr/share/dejagnu/config/unix.exp as generic interface file for target.
+Using ./config/default.exp as tool-and-target-specific interface file.
+Running ./unit/upvar.exp ...
+Running ./unit/upvars.exp ...
 
-            === unit Summary ===
+        === unit Summary ===
 
-    # of expected passes		22
-    # of expected failures		1
-    /tmp/BashByRef/test, bash-4.0.33(7)-release
-
+# of expected passes		22
+# of expected failures		1
+/tmp/BashByRef/test, bash-4.0.33(7)-release</nowiki>

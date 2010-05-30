@@ -39,8 +39,7 @@ sync_after_int
 set test "returns array local"
 set cmd {\
     unset -v a;\
-    f() { local r=(e1 e2 "e3  e4" $'e5\ne6'); local "$1" && upvars -a${#r[@]} $1 "${r[@]}"; };\
-    g() { local a; f a; echo "${a[@]}"; };\
+    g() { local a; return_array a; echo "${a[@]}"; };\
     g\
 }
 assert_bash_list {e1 e2 {e3  e4} "e5\ne6"} $cmd $test
@@ -62,7 +61,7 @@ assert_bash_list {A B} $cmd $test
 set test "return empty array"
 set cmd {\
     unset -v a;\
-    g() { local a=(); local "$1" && upvars -a${#a[@]} a "${a[@]}"; };\
+    g() { local a; a=(); local "$1" && upvars -a${#a[@]} a "${a[@]}"; };\
     f() { local a; g a; declare -p a; };\
     f\
 }
