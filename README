@@ -1,4 +1,38 @@
 INSTALL
 
+    # Get `BashByRef'
 git clone git@github.com:fvue/BashByRef.git
-git submodule update --init
+    # Get submodule `bash-completion'
+cd BashByRef && git submodule update --init
+
+
+TEST SUITE
+
+To run the tests:
+
+    cd test
+    ./runUnit
+
+Example output:
+
+    Test Run By me on Sun May 30 08:51:40 2010
+    Native configuration is i686-pc-linux-gnu
+
+            === unit tests ===
+
+    Schedule of variations:
+        unix
+
+    Running target unix
+    Using /usr/share/dejagnu/baseboards/unix.exp as board description file for target.
+    Using /usr/share/dejagnu/config/unix.exp as generic interface file for target.
+    Using ./config/default.exp as tool-and-target-specific interface file.
+    Running ./unit/upvar.exp ...
+    Running ./unit/upvars.exp ...
+
+            === unit Summary ===
+
+    # of expected passes		22
+    # of expected failures		1
+    /tmp/BashByRef/test, bash-4.0.33(7)-release
+
