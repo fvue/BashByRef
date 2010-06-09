@@ -1,5 +1,9 @@
 proc setup {} {
-    assert_bash_exec {source lib/upvars.sh}
+    if {[is_bash_version_minimal 3 1 0]} {
+        assert_bash_exec {source lib/upvars.sh}
+    } else {
+        assert_bash_exec {source lib/upvars-bash-lt-3.1.0.sh}
+    }
     save_env
 }; # setup()
 
@@ -130,22 +134,9 @@ expect {
 sync_after_int
 
 
-set test "return optional value"
+set test "return none optional value"
 set cmd {\
-    unset -v a;\
-    g() { local a=foo; [[ "$1" ]] && local "$1" && upvars -v $1 "$a"; };\
-    f() { local a; g; declare -p a; };\
-    f\
-}
-assert_bash_list {{declare -- a=""}} $cmd $test
-
-
-sync_after_int
-
-
-set test "return none of two optional values"
-set cmd {\
-    f() { return_two_optional_values; };\
+    f() { return_optional_vars; };\
     f\
 }
 assert_bash_list "" $cmd $test
@@ -154,62 +145,27 @@ assert_bash_list "" $cmd $test
 sync_after_int
 
 
-set test "return one of two optional values"
+set test "return two optional values, one empty"
 set cmd {\
-    unset -v a;\
-    f() { local a; return_two_optional_values a; declare -p a; };\
+    unset -v V1 V2;\
+    f() { local V1 V2; return_optional_vars V1 V2; declare -p V1 V2; };\
     f\
 }
-assert_bash_list {{declare -- a="foo"}} $cmd $test
+assert_bash_list {{declare -- V1="foo"} {declare -- V2=""}} $cmd $test
 
 
 sync_after_int
 
 
-set test "return two of two optional values"
+set test "return two optional arrays, one empty"
 set cmd {\
-    unset -v a b;\
-    f() { local a b; return_two_optional_values a b; declare -p a b; };\
-    f\
-}
-assert_bash_list {{declare -- a="foo"} {declare -- b="bar"}} $cmd $test
-
-
-sync_after_int
-
-
-set test "return none of two optional arrays"
-set cmd {\
-    f() { return_two_optional_arrays; };\
-    f\
-}
-assert_bash_list "" $cmd $test
-
-
-sync_after_int
-
-
-set test "return one of two optional arrays"
-set cmd {\
-    unset -v a;\
-    f() { local a; return_two_optional_arrays a; declare -p a; };\
-    f\
-}
-assert_bash_list {{declare -a a='([0]="foo" [1]="bar")'}} $cmd $test
-
-
-sync_after_int
-
-
-set test "return two of two optional arrays"
-set cmd {\
-    unset -v a b;\
-    f() { local a b; return_two_optional_arrays a b; declare -p a b; };\
+    unset -v A1 A2;\
+    f() { local A1 A2; return_optional_vars A1 A2; declare -p A1 A2; };\
     f\
 }
 assert_bash_list {
-    {declare -a a='([0]="foo" [1]="bar")'}
-    {declare -a b='([0]="cee" [1]="dee")'}
+    {declare -a A1='([0]="bar" [1]="cee  dee")'}
+    {declare -a A2='()'}
 } $cmd $test
 
 

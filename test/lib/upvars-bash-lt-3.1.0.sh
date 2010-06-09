@@ -2,8 +2,8 @@
 return_empty_optional_value() {
     local a vars=() args=()
     if [[ "$1" ]]; then
-        vars+=("$1")
-        args+=(-v "$1" "$a")
+        vars[${#vars[*]}]="$1"
+        args=("${args[@]}" -v "$1" "$a")
     fi
     (( ${#vars[@]} )) && local "${vars[@]}" && upvars "${args[@]}"
 }
@@ -22,23 +22,25 @@ return_optional_values() {
 #            - V1:  Return value 1
 #            - V2:  Return value 2
 return_optional_vars() {
-    local a1=(bar "cee  dee") a2=() upargs=() upvars=() v1=foo v2 var
+    local a1 a2 upargs upvars v1=foo v2 var
+    a1=(bar "cee  dee") a2=() upargs=() upvars=()
     for var; do
         case $var in
-            A1) upargs+=(-a${#a1[@]} $var "${a1[@]}") ;;
-            A2) upargs+=(-a${#a2[@]} $var "${a2[@]}") ;;
-            V1) upargs+=(-v $var "$v1") ;;
-            V2) upargs+=(-v $var "$v2") ;;
+            A1) upargs=("${upargs[@]}" -a${#a1[@]} $var "${a1[@]}") ;;
+            A2) upargs=("${upargs[@]}" -a${#a2[@]} $var "${a2[@]}") ;;
+            V1) upargs=("${upargs[@]}" -v $var "$v1") ;;
+            V2) upargs=("${upargs[@]}" -v $var "$v2") ;;
             *) echo "bash: ${FUNCNAME[0]}: \`$var': unknown variable"
                return 1 ;;
         esac
-        upvars+=("$var")
+        upvars=("${upvars[@]}" "$var")
     done
     (( ${#upvars[@]} )) && local "${upvars[@]}" && upvars "${upargs[@]}"
 }
 
 # Param $1  Name of variable to return array to
 return_array() {
-    local r=(e1 e2 "e3  e4" $'e5\ne6')
+    local r
+    r=(e1 e2 "e3  e4" $'e5\ne6')
     local "$1" && upvars -a${#r[@]} $1 "${r[@]}"
 }
